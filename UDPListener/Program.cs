@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using UDPListener.Services;
 
 namespace UDPListener
 {
@@ -9,7 +10,9 @@ namespace UDPListener
     {
         public static void Main(string[] args)
         {
-           
+            UDPParseService DataParser = new UDPParseService();
+
+            DataParser.GetF12017Data();
         }
     }
 }
