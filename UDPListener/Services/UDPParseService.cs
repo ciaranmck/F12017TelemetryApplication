@@ -8,11 +8,11 @@ namespace UDPListener.Services
 {
     class UDPParseService
     {
-        private UDPListener udp = new UDPListener();
+        private Listener udp = new Listener(20777, 1289);
 
-        private byte[] GetUDPStream()
+        public void GetUDPStream()
         {
-            return udp.StartListener();
+            udp.StartListener();
         }
 
         public F12017DataPacket GetF12017Data()
@@ -20,25 +20,32 @@ namespace UDPListener.Services
             F12017DataPacket Data = new F12017DataPacket { };
             PropertyInfo[] DatapacketProperties = Data.GetType().GetProperties();
 
-            var data = GetUDPStream(); //psuedo code
-
-            int floatSize = 4;
+            GetUDPStream(); //psuedo code
+            int floatIndex = 0;
 
             foreach (var item in DatapacketProperties)
             {
-                Data[item.Name] = ConvertBytesToFLoat(data, floatSize);
+                if (item.GetType() == typeof(float))
+                {
+                    //item.SetValue(Data, ConvertBytesToFLoat(data, floatIndex));
+                    floatIndex = floatIndex + 4;
+
+                } else if (item.GetType() == typeof(float[]))
+                {
+                    //foreach (float floatNumber in (float[])item.GetValue(item)) // need to enter float[] and loop through it x times 
+                    //{
+                    //    item.SetValue(item, ConvertBytesToFloat(data[floatIndex]));
+                    //    floatIndex = floatIndex + 4;
+                    //}
+                } else if (item.GetType() == typeof(byte))
+                {
+                    floatIndex = floatIndex + 1;
+                }
             }
-
-            Data = new F12017DataPacket
-            {
-                m_time = ConvertBytesToFLoat(data, 0), // methods like these should maybe make up the parser service, with this method being abstracted out.
-                m_lapTime = ConvertBytesToFLoat(data, 4),
-            };
-
             return Data;
         }
 
-        private float ConvertBytesToFLoat(byte[] bytes, int index)
+        private float ConvertBytesToFLoat(byte[] bytes, int index) 
         {
             return BitConverter.ToSingle(bytes, index);
         }

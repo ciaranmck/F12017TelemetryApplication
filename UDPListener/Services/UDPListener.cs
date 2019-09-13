@@ -3,39 +3,44 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace UDPListener.Services
 {
-    public class UDPListener
+    public class Listener
     {
-        private const int listenPort = 20777; // create a port/ip address config class.
+        private int _listenPort;
+        private int _bufferSize;
+        private byte[] _bytes;
 
-        public byte[] StartListener()
+        public Listener(int listenPort, int bufferSize)
         {
-            UdpClient listener = new UdpClient(listenPort);
-            listener.Client.ReceiveBufferSize = 1289; // config
+            _listenPort = listenPort;
+            _bufferSize = bufferSize;
+            byte[] _bytes = new byte[_bufferSize];
+        }
 
-            IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, listenPort);
+        public void StartListener()
+        {
+            UdpClient listener = new UdpClient(_listenPort);
+            listener.Client.ReceiveBufferSize = _bufferSize;
+            IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, _listenPort);
  
             try
             {
                 while (true)
                 {
                     Console.WriteLine("Waiting for broadcast");
-                    byte[] bytes = listener.Receive(ref groupEP);
+                    _bytes = listener.Receive(ref groupEP);
+                    string returnData = Encoding.ASCII.GetString(_bytes);
 
-                    return bytes;
-                    //Console.WriteLine($"Received broadcast from {groupEP} :");
-                    //Console.WriteLine($" {Encoding.ASCII.GetString(bytes, 0, bytes.Length)}");
+                    Console.WriteLine($"Received data:  {returnData} :");
+                    Console.WriteLine($" {Encoding.ASCII.GetString(_bytes, 0, _bytes.Length)}");
                 }
             }
             catch (SocketException e)
             {
                 Console.WriteLine(e);
-
-                byte[] bytes= new byte[0];
-
-                return bytes;
             }
             finally
             {
