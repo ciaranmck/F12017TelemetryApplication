@@ -15,19 +15,18 @@ namespace UDPListener.Services
             udp.StartListener();
         }
 
-        public F12017DataPacket GetF12017Data()
+        public F12017DataPacket GetF12017Data(byte[] data)
         {
             F12017DataPacket Data = new F12017DataPacket { };
             PropertyInfo[] DatapacketProperties = Data.GetType().GetProperties();
 
-            GetUDPStream(); //psuedo code
             int floatIndex = 0;
 
             foreach (var item in DatapacketProperties)
             {
-                if (item.GetType() == typeof(float))
+                if (item.PropertyType == typeof(float))
                 {
-                    //item.SetValue(Data, ConvertBytesToFLoat(data, floatIndex));
+                    item.SetValue(Data, ConvertBytesToFLoat(data, floatIndex));
                     floatIndex = floatIndex + 4;
 
                 } else if (item.GetType() == typeof(float[]))
