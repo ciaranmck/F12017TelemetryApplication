@@ -40,7 +40,7 @@ namespace UDPListener.Models
 
         public float m_zd { get; set; } // World space forward direction
 
-        public float[] m_susp_pos = new float[4];    // Note: All wheel arrays have the order:
+        public float[] m_susp_pos { get; set; }    // Note: All wheel arrays have the order:
 
         public float[] m_susp_vel = new float[4];    // RL, RR, FL, FR
 

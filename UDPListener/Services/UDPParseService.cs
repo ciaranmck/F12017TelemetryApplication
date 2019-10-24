@@ -6,7 +6,7 @@ using UDPListener.Models;
 
 namespace UDPListener.Services
 {
-    class UDPParseService
+    public class UDPParseService
     {
         private Listener udp = new Listener(20777, 1289);
 
@@ -15,36 +15,43 @@ namespace UDPListener.Services
             udp.StartListener();
         }
 
-        public F12017DataPacket GetF12017Data(byte[] data)
+        public F12017DataPacket GetF12017Data(byte[] data) // F12017 specific config should be pulled out of this file.
         {
             F12017DataPacket Data = new F12017DataPacket { };
             PropertyInfo[] DatapacketProperties = Data.GetType().GetProperties();
 
-            int floatIndex = 0;
+            int byteIndex = 0;
+            var expectedType = typeof(float);
 
             foreach (var item in DatapacketProperties)
             {
-                if (item.PropertyType == typeof(float))
+                if (item.PropertyType == expectedType)
                 {
-                    item.SetValue(Data, ConvertBytesToFLoat(data, floatIndex));
-                    floatIndex = floatIndex + 4;
+                    item.SetValue(Data, ConvertBytesToFloat(data, byteIndex));
+                    byteIndex = byteIndex += 4;
 
-                } else if (item.GetType() == typeof(float[]))
+                } else if (item.PropertyType.IsArray)
                 {
-                    //foreach (float floatNumber in (float[])item.GetValue(item)) // need to enter float[] and loop through it x times 
-                    //{
-                    //    item.SetValue(item, ConvertBytesToFloat(data[floatIndex]));
-                    //    floatIndex = floatIndex + 4;
-                    //}
+                    if (expectedType.IsAssignableFrom(item.PropertyType.GetElementType()))
+                    {
+                        foreach (float floatPoint in (float[])item.GetValue(item)) // need to enter float[] and loop through it x times 
+                        {
+                            floatPoint = ConvertBytesToFloat(data, byteIndex);
+                            item.SetValue(item, ConvertBytesToFloat(data, byteIndex));
+                            byteIndex = byteIndex += 4;
+                        }
+                    }
+
                 } else if (item.GetType() == typeof(byte))
                 {
-                    floatIndex = floatIndex + 1;
+                    item.SetValue(Data, byteIndex);
+                    byteIndex = byteIndex += 1;
                 }
             }
             return Data;
         }
 
-        private float ConvertBytesToFLoat(byte[] bytes, int index) 
+        private static float ConvertBytesToFloat(byte[] bytes, int index) 
         {
             return BitConverter.ToSingle(bytes, index);
         }

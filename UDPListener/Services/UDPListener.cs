@@ -11,22 +11,19 @@ namespace UDPListener.Services
 {
     public class Listener
     {
-        private int _listenPort;
-        private int _bufferSize;
-        private byte[] _bytes;
         private List<F12017DataPacket> ByteStack = new List<F12017DataPacket>() { };
 
         public Listener(int listenPort, int bufferSize)
         {
             ListenPort = listenPort;
             BufferSize = bufferSize;
-            byte[] Bytes = new byte[BufferSize];
+            Bytes = new byte[BufferSize];
             OpenThreadAndStartListener();
         }
 
-        public int ListenPort { get => _listenPort; set => _listenPort = value; }
-        public int BufferSize { get => _bufferSize; set => _bufferSize = value; }
-        public byte[] Bytes { get => _bytes; set => _bytes = value; }
+        public int ListenPort { get; set; }
+        public int BufferSize { get; set; }
+        public byte[] Bytes { get; set; }
 
         public void StartListener()
         {
