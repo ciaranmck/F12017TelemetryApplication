@@ -28,6 +28,7 @@ namespace UDPListener.Services
         public void StartListener()
         {
             UdpClient listener = new UdpClient(ListenPort);
+
             listener.Client.ReceiveBufferSize = BufferSize;
             IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, ListenPort);
 

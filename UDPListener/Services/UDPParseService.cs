@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -34,14 +35,15 @@ namespace UDPListener.Services
                 {
                     if (expectedType.IsAssignableFrom(item.PropertyType.GetElementType()))
                     {
-                        foreach (float floatPoint in (float[])item.GetValue(item)) // need to enter float[] and loop through it x times 
+                        var floatList = (IList)Array.CreateInstance(item.PropertyType.GetElementType(), 4);
+
+                        for (var i = 0; i < floatList.Count; i++) // need to enter float[] and loop through it x times 
                         {
-                            floatPoint = ConvertBytesToFloat(data, byteIndex);
-                            item.SetValue(item, ConvertBytesToFloat(data, byteIndex));
+                            floatList[i] =  ConvertBytesToFloat(data, byteIndex);
                             byteIndex = byteIndex += 4;
                         }
+                        item.SetValue(item, (Array)floatList);
                     }
-
                 } else if (item.GetType() == typeof(byte))
                 {
                     item.SetValue(Data, byteIndex);
