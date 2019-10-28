@@ -12,12 +12,13 @@ namespace UDPListener.Services
 {
     public class Listener
     {
-        private static List<IDataPacket> ByteStack = new List<IDataPacket>();
-        private static UDPParseService parser = new UDPParseService();
-        private static UdpClient listener = new UdpClient(ListenPort);
-        private static IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, ListenPort);
+        List<IDataPacket> ByteStack = new List<IDataPacket>();
+        UDPParseService parser = new UDPParseService();
 
-        
+        private static int ListenPort { get; set; }
+        private static int BufferSize { get; set; }
+        private static byte[] Bytes { get; set; }
+
         public Listener(int listenPort, int bufferSize)
         {
             ListenPort = listenPort;
@@ -26,12 +27,11 @@ namespace UDPListener.Services
             // OpenThreadAndStartListener();
         }
 
-        private static int ListenPort { get; set; }
-        private static int BufferSize { get; set; }
-        private static byte[] Bytes { get; set; }
-
         public void StartListener(IDataPacket objectToParse)
         {
+            UdpClient listener = new UdpClient(ListenPort);
+
+            IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, ListenPort);
             listener.Client.ReceiveBufferSize = BufferSize;
             try
             {
