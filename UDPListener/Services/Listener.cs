@@ -6,32 +6,33 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
 using UDPListener.Models;
+using UDPListener.Interfaces;
 
 namespace UDPListener.Services
 {
     public class Listener
     {
-        private List<F12017DataPacket> ByteStack = new List<F12017DataPacket>() { };
+        private static List<IDataPacket> ByteStack = new List<IDataPacket>();
+        private static UDPParseService parser = new UDPParseService();
+        private static UdpClient listener = new UdpClient(ListenPort);
+        private static IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, ListenPort);
 
+        
         public Listener(int listenPort, int bufferSize)
         {
             ListenPort = listenPort;
             BufferSize = bufferSize;
             Bytes = new byte[BufferSize];
-            OpenThreadAndStartListener();
+            // OpenThreadAndStartListener();
         }
 
-        public int ListenPort { get; set; }
-        public int BufferSize { get; set; }
-        public byte[] Bytes { get; set; }
+        private static int ListenPort { get; set; }
+        private static int BufferSize { get; set; }
+        private static byte[] Bytes { get; set; }
 
-        public void StartListener()
+        public void StartListener(IDataPacket objectToParse)
         {
-            UdpClient listener = new UdpClient(ListenPort);
-
             listener.Client.ReceiveBufferSize = BufferSize;
-            IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, ListenPort);
-
             try
             {
                 while (true)
@@ -41,9 +42,7 @@ namespace UDPListener.Services
 
                     Console.WriteLine($" {Encoding.ASCII.GetString(Bytes, 0, Bytes.Length)}");
 
-                    UDPParseService parser = new UDPParseService();
-
-                    var parsedData = parser.GetF12017Data(Bytes);
+                    var parsedData = parser.GetDataPacket(Bytes, objectToParse);
                     ByteStack.Add(parsedData);
                 }
             }
@@ -57,9 +56,11 @@ namespace UDPListener.Services
             }
         }
 
-        private void OpenThreadAndStartListener()
-        {
-            Thread t1 = new Thread(new ThreadStart(StartListener));
-        }
+        // Do we want to use threads in this application? Is there any benefit?
+
+        // private void OpenThreadAndStartListener()
+        // {
+        //    Thread t1 = new Thread(new ThreadStart(StartListener));
+        // }
     }
 }

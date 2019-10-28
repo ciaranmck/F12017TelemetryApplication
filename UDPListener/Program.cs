@@ -11,13 +11,11 @@ namespace UDPListener
     {
         public static void Main(string[] args)
         {
+            F12017DataPacket objectToParse = new F12017DataPacket();
+
             Listener listener = new Listener(20777, 1289);
 
-            listener.StartListener();
-            //UDPParseService DataParser = new UDPParseService();
-            //F12017DataPacket Data = DataParser.GetF12017Data();
-
-            //Console.WriteLine(Data);
+            listener.StartListener(objectToParse);
         }
     }
 }

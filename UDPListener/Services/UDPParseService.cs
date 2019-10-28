@@ -1,54 +1,70 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
+using UDPListener.Interfaces;
 using UDPListener.Models;
 
 namespace UDPListener.Services
 {
     public class UDPParseService
     {
-        private Listener udp = new Listener(20777, 1289);
+        //private Listener udp = new Listener(20777, 1289);
 
-        public void GetUDPStream()
-        {
-            udp.StartListener();
-        }
+        //public void GetUDPStream()
+        //{
+        //    udp.StartListener();
+        //}
 
-        public F12017DataPacket GetF12017Data(byte[] data) // F12017 specific config should be pulled out of this file.
+        public IDataPacket GetDataPacket(byte[] rawDataPacket, IDataPacket objectToParse) // F12017 specific config should be pulled out of this file.
         {
-            F12017DataPacket Data = new F12017DataPacket { };
-            PropertyInfo[] DatapacketProperties = Data.GetType().GetProperties();
+            PropertyInfo[] DatapacketProperties = objectToParse.GetType().GetProperties();
 
             int byteIndex = 0;
-            var expectedType = typeof(float);
+            var expectedTypeIsFloat = typeof(float);
+            var expectedTypeIsByte = typeof(byte);
 
             foreach (var item in DatapacketProperties)
             {
-                if (item.PropertyType == expectedType)
+                if (item.PropertyType == expectedTypeIsFloat)
                 {
-                    item.SetValue(Data, ConvertBytesToFloat(data, byteIndex));
+                    item.SetValue(objectToParse, ConvertBytesToFloat(rawDataPacket, byteIndex));
                     byteIndex = byteIndex += 4;
 
-                } else if (item.PropertyType.IsArray)
+                }
+                else if (item.GetType() == typeof(byte))
                 {
-                    if (expectedType.IsAssignableFrom(item.PropertyType.GetElementType()))
-                    {
-                        var floatList = (IList)Array.CreateInstance(item.PropertyType.GetElementType(), 4);
-
-                        for (var i = 0; i < floatList.Count; i++) // need to enter float[] and loop through it x times 
-                        {
-                            floatList[i] =  ConvertBytesToFloat(data, byteIndex);
-                            byteIndex = byteIndex += 4;
-                        }
-                        item.SetValue(item, (Array)floatList);
-                    }
-                } else if (item.GetType() == typeof(byte))
-                {
-                    item.SetValue(Data, byteIndex);
+                    item.SetValue(objectToParse, byteIndex);
                     byteIndex = byteIndex += 1;
                 }
+                else if (item.PropertyType.IsArray)
+                {
+                    if (expectedTypeIsFloat.IsAssignableFrom(item.PropertyType.GetElementType()))
+                    {
+                        var values = (Array)item.GetValue(objectToParse);
+                        var floatList = (IList)values;
+
+                        for (var i = 0; i < values.Length; i++) 
+                        {
+                            floatList[i] =  ConvertBytesToFloat(rawDataPacket, byteIndex);
+                            byteIndex = byteIndex += 4;
+                        }
+                        item.SetValue(objectToParse, (Array)floatList);
+                    }
+                    else if (expectedTypeIsByte.IsAssignableFrom(item.PropertyType.GetElementType()))
+                    {
+                        var values = (Array)item.GetValue(objectToParse);
+                        var floatList = (IList)values;
+
+                        for (var i = 0; i < values.Length; i++) 
+                        {
+                            floatList[i] = rawDataPacket[byteIndex];
+                            byteIndex = byteIndex += 1;
+                        }
+                        item.SetValue(objectToParse, (Array)floatList);
+                    }
+                } 
             }
-            return Data;
+            return objectToParse;
         }
 
         private static float ConvertBytesToFloat(byte[] bytes, int index) 
