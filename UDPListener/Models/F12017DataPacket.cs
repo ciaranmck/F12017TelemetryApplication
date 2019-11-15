@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UDPListener.Interfaces;
 
@@ -100,5 +102,62 @@ namespace UDPListener.Models
         public float AngAccX { get; set; }
         public float AngAccY { get; set; }
         public float AngAccZ { get; set; }
+
+        public IDataPacket ParseObject(byte[] rawDataPacket, IDataPacket objectToParse)
+        {
+            PropertyInfo[] DatapacketProperties = objectToParse.GetType().GetProperties();
+
+            int byteIndex = 0;
+            var expectedTypeIsFloat = typeof(float);
+            var expectedTypeIsByte = typeof(byte);
+
+            foreach (var item in DatapacketProperties)
+            {
+                if (item.PropertyType == expectedTypeIsFloat)
+                {
+                    item.SetValue(objectToParse, ConvertBytesToFloat(rawDataPacket, byteIndex));
+                    byteIndex = byteIndex += 4;
+
+                }
+                else if (item.GetType() == typeof(byte))
+                {
+                    item.SetValue(objectToParse, byteIndex);
+                    byteIndex = byteIndex += 1;
+                }
+                else if (item.PropertyType.IsArray)
+                {
+                    if (expectedTypeIsFloat.IsAssignableFrom(item.PropertyType.GetElementType()))
+                    {
+                        var values = (Array)item.GetValue(objectToParse);
+                        var floatList = (IList)values;
+
+                        for (var i = 0; i < values.Length; i++)
+                        {
+                            floatList[i] = ConvertBytesToFloat(rawDataPacket, byteIndex);
+                            byteIndex = byteIndex += 4;
+                        }
+                        item.SetValue(objectToParse, (Array)floatList);
+                    }
+                    else if (expectedTypeIsByte.IsAssignableFrom(item.PropertyType.GetElementType()))
+                    {
+                        var values = (Array)item.GetValue(objectToParse);
+                        var floatList = (IList)values;
+
+                        for (var i = 0; i < values.Length; i++)
+                        {
+                            floatList[i] = rawDataPacket[byteIndex];
+                            byteIndex = byteIndex += 1;
+                        }
+                        item.SetValue(objectToParse, (Array)floatList);
+                    }
+                }
+            }
+            return (F12017DataPacket)objectToParse;
+        }
+
+        public float ConvertBytesToFloat(byte[] bytes, int index)
+        {
+            return BitConverter.ToSingle(bytes, index);
+        }
     }
 }

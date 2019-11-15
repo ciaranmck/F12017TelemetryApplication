@@ -41,8 +41,7 @@ namespace UDPListener.Services
                     Bytes = listener.Receive(ref groupEP);
 
                     Console.WriteLine($" {Encoding.ASCII.GetString(Bytes, 0, Bytes.Length)}");
-
-                    var parsedData = parser.GetDataPacket(Bytes, objectToParse);
+                    var parsedData = objectToParse.ParseObject(Bytes, objectToParse);
                     ByteStack.Add(parsedData);
                 }
             }

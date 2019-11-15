@@ -8,13 +8,6 @@ namespace UDPListener.Services
 {
     public class UDPParseService
     {
-        //private Listener udp = new Listener(20777, 1289);
-
-        //public void GetUDPStream()
-        //{
-        //    udp.StartListener();
-        //}
-
         public IDataPacket GetDataPacket(byte[] rawDataPacket, IDataPacket objectToParse) // F12017 specific config should be pulled out of this file.
         {
             PropertyInfo[] DatapacketProperties = objectToParse.GetType().GetProperties();

@@ -15,6 +15,8 @@ namespace F12017TelemetryApplication.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            UDPListener.Program.Main();
+
             return new string[] { "value1", "value2" };
         }
 

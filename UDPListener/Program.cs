@@ -9,7 +9,7 @@ namespace UDPListener
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             F12017DataPacket objectToParse = new F12017DataPacket();
 
