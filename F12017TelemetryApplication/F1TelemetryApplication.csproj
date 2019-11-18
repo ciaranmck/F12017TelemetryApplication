@@ -2,10 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AssemblyName>F1TelemetryApplication</AssemblyName>
+    <RootNamespace>F1TelemetryApplication</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\CarDataContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
 
   <ItemGroup>

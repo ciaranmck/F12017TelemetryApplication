@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace F12017TelemetryApplication.Models
+namespace F1TelemetryApplication.Models
 {
     public class CarDataContext : DbContext
     {

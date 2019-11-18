@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using UDPListener;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace F12017TelemetryApplication.Controllers
+namespace F1TelemetryApplication.Controllers
 {
     [Route("api/[controller]")]
     public class CarDataController : ControllerBase
@@ -15,7 +14,10 @@ namespace F12017TelemetryApplication.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            UDPListener.Program.Main();
+            Listener listener = new Listener(20777, 1289);
+            var packettype = "F12017";
+
+            listener.StartListener(packettype);
 
             return new string[] { "value1", "value2" };
         }

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.Threading;
-using UDPListener.Models;
+using System.Configuration;
+using UDPListener.Services;
 using UDPListener.Interfaces;
+using UDPListener.ModelsEFContexts;
+using Microsoft.EntityFrameworkCore;
+using log4net;
+using System.Data.SqlClient;
 
-namespace UDPListener.Services
+namespace UDPListener
 {
     public class Listener
     {
@@ -24,25 +26,43 @@ namespace UDPListener.Services
             ListenPort = listenPort;
             BufferSize = bufferSize;
             Bytes = new byte[BufferSize];
-            // OpenThreadAndStartListener();
         }
 
-        public void StartListener(IDataPacket objectToParse)
+        public void StartListener(string packetType)
         {
-            UdpClient listener = new UdpClient(ListenPort);
+            // beginning of log4net implementation.
 
+            //log4net.Config.BasicConfigurator.Configure();
+            //ILog log = log4net.LogManager.GetLogger(typeof(Listener));
+            //log.Info("Starting");
+
+            UdpClient listener = new UdpClient(ListenPort);
             IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, ListenPort);
             listener.Client.ReceiveBufferSize = BufferSize;
+
+
+            var optionsBuilder = new DbContextOptionsBuilder<F12017DataPacketContext>();
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["F12017DbConnection"].ConnectionString);
+
             try
             {
                 while (true)
                 {
-                    Console.WriteLine("Waiting for broadcast");
                     Bytes = listener.Receive(ref groupEP);
 
-                    Console.WriteLine($" {Encoding.ASCII.GetString(Bytes, 0, Bytes.Length)}");
-                    var parsedData = objectToParse.ParseObject(Bytes, objectToParse);
+                    var parsedData = parser.ParseObject(Bytes, packetType);
                     ByteStack.Add(parsedData);
+
+                    using (var db = new F12017DataPacketContext(optionsBuilder.Options)) // create a service/factory here that handles which context file to return
+                    {
+
+                        ByteStack.ForEach(dataPacket =>
+                        {
+                            db.Add(dataPacket);
+                        });
+
+                        db.SaveChanges();
+                    }
                 }
             }
             catch (SocketException e)

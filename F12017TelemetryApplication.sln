@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F12017TelemetryApplication", "F12017TelemetryApplication\F12017TelemetryApplication.csproj", "{D6D695B3-9FA0-4C77-A5EC-67A8087D2D71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F1TelemetryApplication", "F12017TelemetryApplication\F1TelemetryApplication.csproj", "{D6D695B3-9FA0-4C77-A5EC-67A8087D2D71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UDPListener", "UDPListener\UDPListener.csproj", "{E4A2BD61-5A01-4572-95BB-0518D267A44A}"
 EndProject

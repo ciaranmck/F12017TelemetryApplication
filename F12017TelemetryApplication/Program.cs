@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace F12017TelemetryApplication
+namespace F1TelemetryApplication
 {
     public class Program
     {

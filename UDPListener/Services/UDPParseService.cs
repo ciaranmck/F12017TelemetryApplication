@@ -2,14 +2,24 @@
 using System.Collections;
 using System.Reflection;
 using UDPListener.Interfaces;
-using UDPListener.Models;
+using UDPListener.ModelFactories;
 
 namespace UDPListener.Services
 {
     public class UDPParseService
     {
-        public IDataPacket GetDataPacket(byte[] rawDataPacket, IDataPacket objectToParse) // F12017 specific config should be pulled out of this file.
+        private readonly F12017DataPacketFactory F12017Factory;
+
+        private const string _F12017DATA = "F12017";
+
+        public UDPParseService()
         {
+            F12017Factory = new F12017DataPacketFactory(); //  import a factory service instead of each individual factory into the constructor.
+        }
+
+        public IDataPacket ParseObject(byte[] rawDataPacket, string packetType)
+        {
+            IDataPacket objectToParse = CheckPacketType(packetType);
             PropertyInfo[] DatapacketProperties = objectToParse.GetType().GetProperties();
 
             int byteIndex = 0;
@@ -63,6 +73,22 @@ namespace UDPListener.Services
         private static float ConvertBytesToFloat(byte[] bytes, int index) 
         {
             return BitConverter.ToSingle(bytes, index);
+        }
+
+        private IDataPacket CheckPacketType(string packetType) // this can go into a factory service class
+        {
+            F1TelemetryDataPacketFactory factory = null;
+
+            switch (packetType)
+            {
+                case _F12017DATA:
+                    factory = new F12017DataPacketFactory();
+
+                    break;
+            }
+            IDataPacket dataPacket = factory.GetDataPacket();
+
+            return dataPacket;
         }
     }
 }
